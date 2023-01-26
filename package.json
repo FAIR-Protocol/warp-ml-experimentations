@@ -9,10 +9,14 @@
   "scripts": {
     "clean": "rimraf ./dist",
     "build-ts": "node build.js",
-    "build": "yarn run clean && yarn run build-ts",
-    "interact": "NODE_OPTIONS=--no-warnings ts-node ./scripts/get-answer.ts",
-    "deploy": "node build.js && ts-node ./scripts/deploy-and-train.ts",
-    "test": "jest"
+    "build": "set NODE_OPTIONS=--trace-warnings && yarn run clean && yarn run build-ts",
+    "interact": "set NODE_OPTIONS=--no-warnings ts-node ./scripts/get-answer.ts",
+    "inference": "set NODE_OPTIONS=--trace-warnings && ts-node ./scripts/predict.ts",
+    "qna": "set NODE_OPTIONS=--trace-warnings && ts-node ./scripts/qna.ts",
+    "load": "set NODE_OPTIONS=--trace-warnings && ts-node ./scripts/load.ts",
+    "deploy": "set NODE_PTIONS=--trace-warnings && node build.js && ts-node ./scripts/deploy-and-train.ts",
+    "test": "jest",
+    "xpto": "ts-node ./xpto/infer.ts"
   },
   "engines": {
     "node": ">=16.5"
@@ -33,6 +37,9 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
+    "@tensorflow-models/universal-sentence-encoder": "^1.3.3",
+    "bert-tokenizer": "^1.1.8",
+    "onnxruntime-node": "^1.13.1",
     "warp-contracts": "1.2.20",
     "warp-contracts-nlp-plugin": "^1.0.5"
   }

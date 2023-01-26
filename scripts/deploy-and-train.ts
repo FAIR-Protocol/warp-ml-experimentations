@@ -1,17 +1,15 @@
 import fs from 'fs';
 import path from 'path';
-import {NlpExtension} from "warp-contracts-nlp-plugin";
 import {Contract, LoggerFactory, WarpFactory} from "warp-contracts";
 import { JWKInterface } from 'arweave/node/lib/wallet';
+import { OnnxPlugin } from '../src/plugins/onnx-plugin';
 
 
-const { NlpManager } = require('node-nlp');
-
-let jwk: JWKInterface = readJSON('./.secrets/jwk.json');
+let jwk: JWKInterface = readJSON('./.secrets/arweave-testnet-key-with-tokens.json');
 var contractTxId;
 
 LoggerFactory.INST.logLevel('debug');
-const warp = WarpFactory.forMainnet().use(new NlpExtension());
+const warp = WarpFactory.forTestnet().use(new OnnxPlugin());
 
 async function deploy() {
 
@@ -24,6 +22,7 @@ async function deploy() {
   };
 
   console.log('Deployment started');
+  console.log(contractSrc);
   const deployment = await warp.createContract.deploy({
     wallet: jwk,
     initState: JSON.stringify(initialState),
@@ -32,6 +31,30 @@ async function deploy() {
   contractTxId = deployment.contractTxId;
   console.log('Deployment of NLP completed: ' + contractTxId);
   fs.writeFileSync('./tmp/tmp-nlp-tx-id.txt', contractTxId);
+}
+
+async function load() {
+  
+  try {   
+
+    const contract = warp.contract<any>(contractTxId).connect(jwk);
+
+    await contract.setEvaluationOptions({ allowBigInt: true });
+    await contract.writeInteraction<any>({
+      function: "load"
+    });
+
+    const {cachedValue} = await contract.readState();
+
+    console.log("State: ");
+    console.log(JSON.stringify(cachedValue, null, "  "));
+
+
+  } catch (e) {
+    console.log(e);
+
+  }
+
 }
 
 async function addDataAndTrain() {
@@ -73,7 +96,7 @@ async function addDataAndTrain() {
 
 (async function main() {
   await deploy();
-  await addDataAndTrain().catch((e) => console.error(e));
+  // await load().catch((e) => console.error(e));
 })();
 
 async function addData(contract: Contract<any>, type:any, content:any, category:any) {
