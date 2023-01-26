@@ -1,0 +1,3 @@
+ponto 1: contrato executa codigo local mas dá erro a por na rede online
+ponto 2: tamanho do modelo e formas de interagir com ele no smart contract
+ponto 3: testnet tokens
